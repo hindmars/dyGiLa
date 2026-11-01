@@ -49,7 +49,8 @@ std::tuple<const std::vector<std::string>, const CoordinateVector *const, const 
 
   // coordinate origin
   std::initializer_list<int> coordsList {0,0,0};
-  const CoordinateVector originpoints(coordsList);
+  // static: a pointer to it is returned, so it must outlive this function
+  static const CoordinateVector originpoints(coordsList);
 
   // number of steps between reduction streaming
   const unsigned int steps = std::round((gl.config.tEnd - gl.config.tStats)

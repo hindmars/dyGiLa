@@ -19,6 +19,12 @@ else
    HILA_DIR:= /projappl/project_2014552/insHILA
 #   ASCENT_DIR := /projappl/project_2006478/a-2/install/ascent-v0.9.0
   endif
+  ifeq ($(ARCH), macos)
+   # local macOS build: insHILA submodule, Ascent built by
+   # libs/ascent/scripts/build_ascent/build_ascent.sh in ../ascent-build
+   HILA_DIR := $(CURDIR)/libs/inshila
+   ASCENT_DIR ?= $(abspath $(CURDIR)/../ascent-build/install/ascent-checkout)
+  endif
 endif
 
 # default ARCH if no ARCH is provided form shell
@@ -35,6 +41,9 @@ else
   endif
   ifeq ($(ARCH), mahti-cuda)
    DYGILA_DIR := /projappl/project_2014552/dyGiLa-GPU
+  endif
+  ifeq ($(ARCH), macos)
+   DYGILA_DIR := $(CURDIR)
   endif
 endif
 

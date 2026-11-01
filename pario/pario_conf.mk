@@ -14,7 +14,11 @@ ifeq ($(USE_PARIO), ON)
   include $(ASCENT_DIR)/share/ascent/ascent_config.mk
   APP_OPTS += $(ASCENT_INCLUDE_FLAGS)
   LDFLAGS  += $(ASCENT_LINK_RPATH)
-  ifeq ($(ARCH), lumi)
+  ifeq ($(ARCH), macos)
+    # ascent_config.mk omits the rpath of the zlib that HDF5 links to
+    LDFLAGS += -Wl,-rpath,$(wildcard $(ASCENT_DIR)/../zlib-*/lib)
+  endif
+  ifneq ($(filter $(ARCH),lumi macos),)
     LDLIBS += $(ASCENT_MPI_LIB_FLAGS)
   else
     ifneq ($(filter $(ARCH),lumi-hip-CC roihu-gpu),)
