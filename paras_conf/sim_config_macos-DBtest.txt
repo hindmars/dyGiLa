@@ -1,0 +1,119 @@
+lattice_sizes_array  32, 32, 32
+dx                  0.5
+dtdxRatio           0.2
+tThermalizationWaiting 1000
+tauQ1               5
+tauQ2               10
+has1stQStop         no
+use_antiQuench      no
+Ttd_Qend            0.5
+tStart              0.0
+tEnd                40.0
+tdis                40.0
+TDependnetgamma     no
+shiftTDependent_gamma_td no
+gamma1              0.05, 0.0
+gamma2              7.85, 0.0
+gammaoffc           889.855
+extinguish_off_t_count 0
+initialCondition    normal_phase_complex
+sigma               0.1
+seed                1
+initialConditionT   constant
+IniT                1.5
+initialConditionp   constant
+Inip                26.0
+withHfield          no
+tStats              0.0
+nOutputs            8
+PSSRatio            1
+output_file         stats/measure-stream.csv
+pVcounter_file      stats/pVcounter.csv
+xmf2_Amatrix_fname  Amatrix.xmf2
+xmf2_pMarker_fname  pMarker.xmf2
+xmf2_massCurrent_fname massCurrent.xmf2
+xmf2_spinCurrent_fname spinCurrent.xmf2
+BCs1                periodic
+BCs2                periodic
+BCchangec           1
+use_AdGRz_surfaces  no
+evolveT             no
+useTbath            yes
+Tbath_start         0.0
+ptol                0.1
+useGaussianLP_filter yes
+numIterGLPfilter    9
+GLPfc2              0.142857142
+pario_compute_gapA  no
+pario_compute_feDensity no
+pario_Temperature_pStream no
+pario_compute_phaseMarker yes
+pario_compute_DB    yes
+invariants_gapA_min 0.2
+pario_compute_U1Phase no
+pario_compute_lVector no
+pario_compute_GPhiVector no
+pario_compute_spinCurr no
+U1_3phi_DetA_ZeroTol 1e-6
+lVec_SqlTol         1e-6
+hdf5_A_matrix_output no
+hdf5_AMatrix_exaslice_output no
+hdf5_mass_current_output no
+hdf5_spin_current_output no
+hdf5_spinCurr_exaslice_output no
+hdf5_pMarker_output no
+hdf5_lVector_output no
+hdf5_GradPhiVector_output no
+hdf5_GradPhiVector_exaslice_output no
+hdf5_GradPhiVector_clip_output no
+hdf5_GradPhiVector_boxclip_output no
+do_gapA_clip        no
+do_gapA_slice       no
+do_fed_clip         no
+do_gapA_isosurface  no
+do_Temperature_clip no
+do_Temperature_slice no
+do_Temperature_isosurface no
+do_phaseMarker_slice1 yes
+pMarkerSlice1_params_array 8, 8, 8, 0, 0, 1
+do_phaseMarker_slice2 no
+do_phaseMarker_isosurface no
+do_DB_slice         yes
+DBSlice_params_array 8, 8, 8, 0, 0, 1
+DB_range_array      0.0, 2.34
+# One image set per listed table; names must be quoted.
+# Other options: "Inferno", "Plasma", "Viridis", "Black-Body Radiation",
+#   "Rainbow Uniform", "Rainbow Desaturated", "Cool to Warm", "Blue to Orange",
+#   "Cold and Hot", "Gray to Red", "X Ray" (Viskores presets).
+# Several can be compared in one run, e.g. "Jet", "Inferno", "Plasma"
+DB_color_tables     "Jet"
+DB_mask_rgb         0.5, 0.5, 0.5
+remove_screen_annotations no
+do_phaseMarker_fieldclip no
+do_phaseMarker_fieldclip_Bphase no
+do_phaseMarker_fieldclip_Aphase no
+do_U13phi_slice     no
+do_l_sq_slice       no
+do_GPhi_slice_extract no
+do_GPhi_clip_extract no
+do_GPhi_boxclip_extract no
+do_AMatrix_slice_extract no
+do_spinCurr_slice_extract no
+clamp_bias_gapMin   0.0
+clamp_bias_gapMax   3.0
+clamp_bias_fed_Min  -1.0
+clamp_bias_fed_Max  0.0
+CBxMin              -0.7
+CBxMax              0.7
+CByMin              0.88
+CByMax              0.93
+image_width1        512
+image_height1       512
+image_width2        512
+image_height2       512
+camera1_azi         0.0
+camera1_ele         0.0
+camera2_azi         30
+camera2_ele         30
+zoom1               1.13
+zoom2               1.0

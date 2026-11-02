@@ -44,6 +44,9 @@ enum {
   N_REDUCTION
 };  
 
+// D_B value at masked sites (gap below invariants_gapA_min); D_B itself is >= 0
+#define DB_MASKED (-1.0)
+
 // Container for simulation parameters and methods
 class glsol{
 
@@ -102,6 +105,7 @@ public:
 
   Field<Vector<3,real_t>> H; // H-field, 3-component column vector field
   Field<real_t> phaseMarker;
+  Field<real_t> DB; // D_B = sum_a (R_a - R_a^B)^2, set in phaseMarking()
   
   real_t t = 0., pM5VolR = 0., pM9VolR = 0.;
   real_t tc = 0.;

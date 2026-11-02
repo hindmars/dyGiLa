@@ -68,6 +68,9 @@ void parIO::pstream(glsol &sol, unsigned int &stat_counter) {
     /*-------------------- phaseMarker field --------------------*/
     if (sol.config.pario_compute_phaseMarker == 1) { sol.phaseMarker.copy_local_data_with_halo(phaseMarker); }
 
+    /*-------------------- D_B field --------------------*/
+    if (sol.config.pario_compute_DB == 1) { sol.DB.copy_local_data_with_halo(DBContainer); }
+
     /*------------------- U(1) phase of AwT ---------------------*/
     if (sol.config.pario_compute_U1Phase == 1) {
         U1PhaseStreaming(sol);

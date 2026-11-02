@@ -24,6 +24,7 @@ void parIO::containerReserve_gapAFETemPMarkerU1lVecSq(glsol &sol) {
     if (sol.config.pario_Temperature_pStream == 1) { Temperature.reserve(latticeVolumeWithGhost); }
     
     if (sol.config.pario_compute_phaseMarker == 1) { phaseMarker.reserve(latticeVolumeWithGhost); }
+    if (sol.config.pario_compute_DB == 1) { DBContainer.reserve(latticeVolumeWithGhost); }
 
     if (sol.config.pario_compute_U1Phase == 1) { U1_3phiContainer.reserve(latticeVolumeWithGhost); }
 

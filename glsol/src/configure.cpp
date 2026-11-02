@@ -295,6 +295,9 @@ const std::vector<std::string> glsol::configure(const std::string &fname, int ar
     config.pario_compute_feDensity     = parameters.get_item("pario_compute_feDensity",{"no","yes"});
     config.pario_Temperature_pStream     = parameters.get_item("pario_Temperature_pStream",{"no","yes"});
     config.pario_compute_phaseMarker = parameters.get_item("pario_compute_phaseMarker",{"no","yes"});
+    config.pario_compute_DB          = parameters.get_item("pario_compute_DB",{"no","yes"});
+    if (config.pario_compute_phaseMarker == 1 || config.pario_compute_DB == 1)
+      { config.invariants_gapA_min = parameters.get("invariants_gapA_min"); }
     config.pario_compute_U1Phase     = parameters.get_item("pario_compute_U1Phase",{"no","yes"});
     config.pario_compute_lVector     = parameters.get_item("pario_compute_lVector",{"no","yes"});
     config.pario_compute_GPhiVector  = parameters.get_item("pario_compute_GPhiVector",{"no","yes"});
@@ -457,6 +460,27 @@ const std::vector<std::string> glsol::configure(const std::string &fname, int ar
       {
 	std::vector<real_t> tmp4 = parameters.get("pMarkerIsoValues_params_array");
         for (auto i : tmp4) { config.phaseMarker_iso_values_vector.push_back(i); }
+      }
+
+    config.do_DB_slice = parameters.get_item("do_DB_slice",{"no","yes"});
+    if (config.do_DB_slice == 1)
+      {
+	const std::vector<real_t> temp = parameters.get("DBSlice_params_array");
+	config.DB_slice_point_x = temp[0];
+	config.DB_slice_point_y = temp[1];
+	config.DB_slice_point_z = temp[2];
+	config.DB_slice_norm_x = temp[3];
+	config.DB_slice_norm_y = temp[4];
+	config.DB_slice_norm_z = temp[5];
+	const std::vector<real_t> range = parameters.get("DB_range_array");
+	config.DB_range_min = range[0];
+	config.DB_range_max = range[1];
+	// quoted, comma-separated Ascent/Viskores colour table names
+	const std::vector<std::string> tables = parameters.get("DB_color_tables");
+	config.DB_color_tables = tables;
+	// RGB in [0,1] for sites masked by invariants_gapA_min
+	const std::vector<real_t> rgb = parameters.get("DB_mask_rgb");
+	for (int c = 0; c < 3; c++) config.DB_mask_rgb[c] = rgb[c];
       }
 
     config.remove_screen_annotations = parameters.get_item("remove_screen_annotations",{"no","yes"});
