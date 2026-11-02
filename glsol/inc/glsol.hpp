@@ -109,7 +109,7 @@ public:
 
   unsigned int extinguish_t = 0.;  
   matep::Matep MP;
-  dyGiLaConf config;
+  dyGiLaConf config{}; // value-initialised: parameters not set by configure() are 0
 
 private:
   
