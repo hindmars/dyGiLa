@@ -201,6 +201,12 @@ const std::vector<std::string> glsol::configure(const std::string &fname, int ar
        std::vector<real_t> temp	= parameters.get("InitH");
        foralldir(al){ config.InitH.e(al) = temp[al]; }
       }
+    else
+      {
+       // H enters dPiGLfe() unconditionally, so set H = 0 explicitly
+       config.initialConditionH = 0;
+       foralldir(al){ config.InitH.e(al) = 0.0; }
+      }
         
     config.tStats = parameters.get("tStats");
     config.nOutputs = parameters.get("nOutputs");
