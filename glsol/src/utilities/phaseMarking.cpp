@@ -46,9 +46,11 @@ void glsol::phaseMarking() {
     if (config.pario_compute_DB == 1)
       {
        const real_t third = 1.0/3.0;
+       // Euclidean distance (not its square), so that phases close to B,
+       // e.g. planar at 1/(2 sqrt 3) = 0.289, stand out from B in images.
        DB[X] = (!smallGap && R2 > 0.5)
-	       ? (R1-1.0)*(R1-1.0) + (R2-1.0)*(R2-1.0)
-	         + (R3-third)*(R3-third) + (R4-third)*(R4-third) + (R5-third)*(R5-third)
+	       ? sqrt((R1-1.0)*(R1-1.0) + (R2-1.0)*(R2-1.0)
+	              + (R3-third)*(R3-third) + (R4-third)*(R4-third) + (R5-third)*(R5-third))
 	       : DB_MASKED;
       }
     

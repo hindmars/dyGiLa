@@ -5,7 +5,7 @@
 #include "conduit_blueprint.hpp"
 
 /*
- * Register D_B = sum_a (R_a - R_a^B)^2 with the Ascent mesh as a
+ * Register D_B = sqrt(sum_a (R_a - R_a^B)^2) with the Ascent mesh as a
  * vertex-associated scalar field named "DB".  The values are filled by
  * pstream() from glsol::DB, which phaseMarking() computes.
  */

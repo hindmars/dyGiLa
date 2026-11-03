@@ -160,7 +160,7 @@ struct dyGiLaConf {
 	           pario_compute_phaseMarker, pario_compute_U1Phase,
 	           pario_compute_lVector, pario_compute_GPhiVector,
 	           pario_compute_massCurr, pario_compute_spinCurr;
-      // D_B = sum_a (R_a - R_a^B)^2, distance from the B phase in quartic invariants
+      // D_B = sqrt(sum_a (R_a - R_a^B)^2), distance from the B phase in quartic invariants
       unsigned int pario_compute_DB;
       // The quartic invariants are undefined where A ~ 0. Sites with
       // sqrt(tr AA^dagger) below this get phaseMarker 0 and D_B = DB_MASKED.
