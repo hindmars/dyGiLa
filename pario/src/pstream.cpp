@@ -17,6 +17,101 @@
 #include "ascent.hpp"
 #include "conduit_blueprint.hpp"
 
+#include <map>
+#include <string>
+#include <cmath>
+
+namespace {
+
+// Number of sites within one lattice spacing of the plane (point p, normal n,
+// physical coordinates = index * dx) where F <= maxv.  This is a superset of
+// the sites that an exaslice through the plane interpolates from.
+double countNearPlane(const Field<real_t> &F, const real_t maxv, const double p[3],
+                      const double n[3], const double dx) {
+    double nn = std::sqrt(n[0]*n[0] + n[1]*n[1] + n[2]*n[2]);
+    if (nn == 0.0) nn = 1.0;
+    const double n0 = n[0]/nn, n1 = n[1]/nn, n2 = n[2]/nn;
+    const double p0 = p[0], p1 = p[1], p2 = p[2];
+    const double tol = 0.999*dx;
+    double count = 0.0;
+    onsites(ALL) {
+        const double d = (X.coordinate(e_x)*dx - p0)*n0
+                       + (X.coordinate(e_y)*dx - p1)*n1
+                       + (X.coordinate(e_z)*dx - p2)*n2;
+        count += (fabs(d) < tol && F[X] <= maxv) ? 1.0 : 0.0;
+    }
+    return count;
+}
+
+// The phase-marker and D_B slices draw marker-0 / masked sites as a second,
+// grey plot "p2" on a threshold pipeline.  When the slice has no such sites
+// Ascent prints "pseudocolor plot yielded no data" on every render, so remove
+// p2 from the scene for that render and put it back when it is needed again.
+// Plots are found from the actions tree: a p2 whose pipeline is an exaslice
+// (f1) followed by a threshold (f2) on phaseMarker or DB.
+void dropEmptyOverlayPlots(glsol &sol, conduit::Node &actions) {
+    struct Overlay { conduit::Node *plots; conduit::Node saved; std::string pipeline; };
+    static std::vector<Overlay> overlays;
+    static bool initialised = false;
+
+    // pipeline name -> its definition
+    std::map<std::string, const conduit::Node *> pipelines;
+    for (conduit::index_t i = 0; i < actions.number_of_children(); i++) {
+        const conduit::Node &act = actions.child(i);
+        if (act.has_child("action") && act["action"].as_string() == "add_pipelines")
+            for (conduit::index_t j = 0; j < act["pipelines"].number_of_children(); j++)
+                pipelines[act["pipelines"].child(j).name()] = &act["pipelines"].child(j);
+    }
+
+    if (!initialised) {
+        initialised = true;
+        for (conduit::index_t i = 0; i < actions.number_of_children(); i++) {
+            conduit::Node &act = actions.child(i);
+            if (!act.has_child("action") || act["action"].as_string() != "add_scenes") continue;
+            conduit::Node &scenes = act["scenes"];
+            for (conduit::index_t j = 0; j < scenes.number_of_children(); j++) {
+                conduit::Node &scene = scenes.child(j);
+                if (!scene.has_path("plots/p2/pipeline")) continue;
+                const std::string pl = scene["plots/p2/pipeline"].as_string();
+                auto it = pipelines.find(pl);
+                if (it == pipelines.end()) continue;
+                const conduit::Node &pn = *it->second;
+                if (!pn.has_path("f1/type") || pn["f1/type"].as_string() != "exaslice") continue;
+                if (!pn.has_path("f2/params/field")) continue;
+                const std::string field = pn["f2/params/field"].as_string();
+                if (field != "phaseMarker" && field != "DB") continue;
+                Overlay o;
+                o.plots = &scene["plots"];
+                o.saved.set(scene["plots/p2"]);
+                o.pipeline = pl;
+                overlays.push_back(std::move(o));
+            }
+        }
+    }
+
+    std::map<std::string, bool> nonEmpty; // one count per pipeline
+    for (Overlay &o : overlays) {
+        if (nonEmpty.find(o.pipeline) == nonEmpty.end()) {
+            const conduit::Node &pn = *pipelines[o.pipeline];
+            const std::string field = pn["f2/params/field"].as_string();
+            const double p[3] = {pn["f1/params/point/x"].to_double(),
+                                 pn["f1/params/point/y"].to_double(),
+                                 pn["f1/params/point/z"].to_double()};
+            const double n[3] = {pn["f1/params/normal/x"].to_double(),
+                                 pn["f1/params/normal/y"].to_double(),
+                                 pn["f1/params/normal/z"].to_double()};
+            const real_t maxv = pn["f2/params/max_value"].to_double();
+            const Field<real_t> &F = (field == "DB") ? sol.DB : sol.phaseMarker;
+            nonEmpty[o.pipeline] = countNearPlane(F, maxv, p, n, sol.config.dx) > 0.0;
+        }
+        const bool has = o.plots->has_child("p2");
+        if (nonEmpty[o.pipeline] && !has) (*o.plots)["p2"].set(o.saved);
+        else if (!nonEmpty[o.pipeline] && has) o.plots->remove("p2");
+    }
+}
+
+} // namespace
+
 void parIO::pstream(glsol &sol, unsigned int &stat_counter) {
 
     /*-------------------    sqrt(Tr[A.A^+) ----------------------*/
@@ -230,7 +325,10 @@ void parIO::pstream(glsol &sol, unsigned int &stat_counter) {
 
     // re-publish mesh with new cycle
     pio.publish(mesh);
-    
+
+    // drop grey overlay plots whose slice has no marker-0 / masked sites
+    dropEmptyOverlayPlots(sol, actions);
+
     pio.execute(actions);
 
     system(R"(find . -name "*.root" -delete 2>/dev/null)");
