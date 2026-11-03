@@ -750,6 +750,7 @@ void parIO::defineActions_insitu(glsol &sol) {
        scenes["s16/renders/r1/bg_color"].set_float64_ptr(bg_colvec, 3);
        scenes["s16/renders/r1/fg_color"].set_float64_ptr(fg_colvec, 3);    
        scenes["s16/renders/r1/image_prefix"] = "insitu/U1_3phi-Slice/U1_3phi-slice_t-%09d";
+       scenes["s16/renders/r1/camera/zoom"] = sol.config.zoom1;   // same as the other z-normal slices
       }
 
       } // compute U1Phase block
@@ -787,6 +788,7 @@ void parIO::defineActions_insitu(glsol &sol) {
        scenes["s17/renders/r1/bg_color"].set_float64_ptr(bg_colvec, 3);
        scenes["s17/renders/r1/fg_color"].set_float64_ptr(fg_colvec, 3);    
        scenes["s17/renders/r1/image_prefix"] = "insitu/lVec_norm2-Slice/lVec_norm2-slice_t-%09d";
+       scenes["s17/renders/r1/camera/zoom"] = sol.config.zoom1;   // same as the other z-normal slices
       }
 
       } // compute lVector block
