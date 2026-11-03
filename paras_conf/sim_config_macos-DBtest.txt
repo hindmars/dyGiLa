@@ -80,7 +80,7 @@ do_phaseMarker_slice2 no
 do_phaseMarker_isosurface no
 do_DB_slice         yes
 DBSlice_params_array 8, 8, 8, 0, 0, 1
-DB_range_array      0.0, 2.34
+DB_range_array      0.0, 1.53
 # One image set per listed table; names must be quoted.
 # Other options: "Inferno", "Plasma", "Viridis", "Black-Body Radiation",
 #   "Rainbow Uniform", "Rainbow Desaturated", "Cool to Warm", "Blue to Orange",

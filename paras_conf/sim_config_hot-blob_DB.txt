@@ -110,7 +110,7 @@ pario_compute_gapA       yes
 pario_compute_feDensity  no         
 pario_Temperature_pStream no        
 pario_compute_phaseMarker yes       
-pario_compute_DB         yes        # D_B = sum_a (R_a - R_a^B)^2, distance from B phase
+pario_compute_DB         yes        # D_B = sqrt(sum_a (R_a - R_a^B)^2), distance from B phase
 invariants_gapA_min      0.2        # gap below this: phaseMarker 0 (normal, drawn grey), D_B masked; 0 = old behaviour
 pario_compute_U1Phase    yes        
 pario_compute_lVector    yes        
@@ -166,9 +166,9 @@ pMarkerSlice2_params_array 258.60006681091676, 258.60006681091676, 129.300033405
 do_phaseMarker_isosurface no        
 #pMarkerIsoValues_params_array  0.0, 1.0 # Only TWO values allowed;
 
-do_DB_slice              yes        # D_B = sum_a (R_a - R_a^B)^2; needs pario_compute_DB yes
+do_DB_slice              yes        # needs pario_compute_DB yes
 DBSlice_params_array     258.60006681091676, 258.60006681091676, 129.30003340545838, 0, 0, 1 # same plane as pMarker slice1; point x,y,z~array[0-2]; norm x,y,z~array[3-5]
-DB_range_array           0.0, 2.34  # colour range; 0 = B, 1 = alpha, 1.33 = polar, 2 = A, 2.33 = R all zero
+DB_range_array           0.0, 1.53  # colour range; 0 = B, 0.29 = planar, 1 = alpha, 1.15 = polar, 1.41 = A, 1.53 = R all zero
 # One image set per listed table; names must be quoted. Other options: "Inferno", "Plasma", "Viridis", "Cool to Warm"
 DB_color_tables          "Jet"
 DB_mask_rgb              0.5, 0.5, 0.5 # colour of sites below invariants_gapA_min

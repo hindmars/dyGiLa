@@ -28,12 +28,13 @@ without them dyGiLa stops with a missing-key error.** A complete example is
 Directly after `pario_compute_phaseMarker`:
 
 ```
-pario_compute_DB         yes        # D_B = sum_a (R_a - R_a^B)^2, distance from the B phase
+pario_compute_DB         yes        # D_B = sqrt(sum_a (R_a - R_a^B)^2), distance from the B phase
 invariants_gapA_min      0.2        # gap below this: phaseMarker 0 (normal), D_B masked
 ```
 
-- `pario_compute_DB` (`yes`/`no`) computes D<sub>B</sub> = Σ<sub>a</sub>(R<sub>a</sub> − R<sub>a</sub><sup>B</sup>)²,
+- `pario_compute_DB` (`yes`/`no`) computes D<sub>B</sub> = [Σ<sub>a</sub>(R<sub>a</sub> − R<sub>a</sub><sup>B</sup>)²]<sup>1/2</sup>,
   the distance from the B phase in the space of the five invariants R<sub>1</sub>…R<sub>5</sub>.
+  Its maximum, 1.528, is reached when all the R<sub>a</sub> are zero.
 - `invariants_gapA_min` is required if `pario_compute_phaseMarker` or `pario_compute_DB` is `yes`.
   The invariants are computed from the normalised order parameter, so they are just noise
   where the gap √tr(AA<sup>†</sup>) is small. Sites with a gap below this value
@@ -46,7 +47,7 @@ Directly before `remove_screen_annotations`:
 ```
 do_DB_slice              yes        # needs pario_compute_DB yes
 DBSlice_params_array     258.6, 258.6, 129.3, 0, 0, 1   # point x, y, z; normal x, y, z
-DB_range_array           0.0, 2.34  # fixed colour range
+DB_range_array           0.0, 1.53  # fixed colour range
 DB_color_tables          "Jet"      # quoted, comma-separated; one image set per table
 DB_mask_rgb              0.5, 0.5, 0.5   # colour of masked sites
 ```
@@ -62,14 +63,14 @@ Phase-marker values and D<sub>B</sub> for the bulk phases:
 |---|---|---|
 | 0 | normal (gap below `invariants_gapA_min`; drawn grey, not in the colour bar) | masked |
 | 1 | unclassified | — |
-| 2 | β | 2.0 |
-| 3 | planar | 0.083 |
-| 4 | γ | 1.667 |
+| 2 | β | 1.414 |
+| 3 | planar | 0.289 |
+| 4 | γ | 1.291 |
 | 5 | B | 0 |
 | 6 | α | 1.0 |
-| 7 | polar | 1.333 |
-| 8 | bipolar | 1.083 |
-| 9 | A | 2.0 |
+| 7 | polar | 1.155 |
+| 8 | bipolar | 1.041 |
+| 9 | A | 1.414 |
 
 `remove_screen_annotations` now controls the colour bar and title on every slice image,
 including phase-marker slice 2. The bar sits across the top, at
