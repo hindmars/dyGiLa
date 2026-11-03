@@ -49,6 +49,7 @@ pario_compute_gapA  no
 pario_compute_feDensity no
 pario_Temperature_pStream no
 pario_compute_phaseMarker no
+pario_compute_DB    no
 pario_compute_U1Phase no
 pario_compute_lVector no
 pario_compute_GPhiVector no
@@ -79,6 +80,7 @@ do_Temperature_isosurface no
 do_phaseMarker_slice1 no
 do_phaseMarker_slice2 no
 do_phaseMarker_isosurface no
+do_DB_slice         no
 remove_screen_annotations no
 do_phaseMarker_fieldclip no
 do_phaseMarker_fieldclip_Bphase no

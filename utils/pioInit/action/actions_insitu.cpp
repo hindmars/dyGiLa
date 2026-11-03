@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <fstream>
 #include <string>
+#include <cctype>
 #include <assert.h>
 
 #include "plumbing/hila.h"
@@ -14,6 +15,50 @@
 #include "pario.hpp"
 #include "hsvCyclicSchemeRGBA.hpp"
 #include "discreteColorBarScheme.hpp"
+
+namespace {
+// phaseMarker 0 (normal: gap below invariants_gapA_min) is drawn as a separate
+// mid-grey plot, so the 1-9 colour bar is unchanged. "<pl>" keeps cells with
+// no vertex at 0 (select cells with any 0 vertex, then invert); "<pl>zero"
+// is the complement.
+void addMarkerZeroSplit(conduit::Node &pipelines, const std::string &pl) {
+  pipelines[pl + "/f2/type"] = "threshold";
+  pipelines[pl + "/f2/params/field"] = "phaseMarker";
+  pipelines[pl + "/f2/params/min_value"] = -1.0;
+  pipelines[pl + "/f2/params/max_value"] = 0.5;
+  pipelines[pl + "/f2/params/invert"] = "true";
+
+  pipelines[pl + "zero/f1"] = pipelines[pl + "/f1"];
+  pipelines[pl + "zero/f2/type"] = "threshold";
+  pipelines[pl + "zero/f2/params/field"] = "phaseMarker";
+  pipelines[pl + "zero/f2/params/min_value"] = -1.0;
+  pipelines[pl + "zero/f2/params/max_value"] = 0.5;
+}
+
+void addMarkerZeroPlot(conduit::Node &plot, const std::string &pl) {
+  static double grey[2] = {0.5, 0.5}, alpha[2] = {1.0, 1.0}, pos[2] = {0.0, 1.0};
+  plot["type"] = "pseudocolor";
+  plot["pipeline"] = pl + "zero";
+  plot["field"] = "phaseMarker";
+  plot["min_value"] = -1.0;   // avoid a zero-width range
+  plot["max_value"] = 1.0;
+  conduit::Node &ct = plot["color_table"];
+  ct["control_points/r"].set_external(grey, 2);
+  ct["control_points/g"].set_external(grey, 2);
+  ct["control_points/b"].set_external(grey, 2);
+  ct["control_points/a"].set_external(alpha, 2);
+  ct["control_points/position"].set_external(pos, 2);
+  ct["annotation"] = "false";   // colour bar for phaseMarker 1-9 only
+}
+
+// Common annotation settings for all slice renders: colour bar across the
+// top (CBxMin..CByMax), and colour bar and title switched off together by
+// remove_screen_annotations.
+void setSliceAnnotations(conduit::Node &render, const double *cbpos, const glsol &sol) {
+  render["color_bar_position"].set(cbpos, 4);
+  render["screen_annotations"] = (sol.config.remove_screen_annotations == 1) ? "false" : "true";
+}
+} // namespace
 
 #include "ascent.hpp"
 #include "conduit_blueprint.hpp"
@@ -160,7 +205,7 @@ void parIO::defineActions_insitu(glsol &sol) {
 			    sol.config.Ttd_Qend * matep.Tcp_mK(sol.config.Inip))
 	                   * (1. + sol.config.clamp_bias_gapMax);
 
-       scenes["s4/renders/r1/color_bar_position"].set(colorbar_position,4);       
+       setSliceAnnotations(scenes["s4/renders/r1"], colorbar_position, sol);       
        
        scenes["s4/renders/r1/image_width"]  = sol.config.image_width1;
        scenes["s4/renders/r1/image_height"] = sol.config.image_height1;
@@ -334,6 +379,7 @@ void parIO::defineActions_insitu(glsol &sol) {
        scenes2["s5/plots/p1/max_value"]
 	 = matep.Tcp_mK(sol.config.Inip);
 
+       setSliceAnnotations(scenes2["s5/renders/r1"], colorbar_position, sol);
        scenes2["s5/renders/r1/bg_color"].set_float64_ptr(bg_colvec, 3);
        scenes2["s5/renders/r1/fg_color"].set_float64_ptr(fg_colvec, 3);    
        scenes2["s5/renders/r1/image_prefix"] = "insitu/Temperature-slice/Temperature-slice_t-%09d";
@@ -391,6 +437,7 @@ void parIO::defineActions_insitu(glsol &sol) {
        slice_params3["normal/x"] = sol.config.pMarker_slice1_norm_x;
        slice_params3["normal/y"] = sol.config.pMarker_slice1_norm_y;
        slice_params3["normal/z"] = sol.config.pMarker_slice1_norm_z;
+       addMarkerZeroSplit(pipelines2, "pl9");
 
        scenes["s10/plots/p1/type"] = "pseudocolor";
        scenes["s10/plots/p1/pipeline"] = "pl9";
@@ -403,8 +450,9 @@ void parIO::defineActions_insitu(glsol &sol) {
        conduit::Node control_points;
        colorControlPointsGenerator(control_points);       
        scenes["s10/plots/p1/color_table/control_points"] = control_points;       
+       addMarkerZeroPlot(scenes["s10/plots/p2"], "pl9");
        //double colorbar_position[4] = {-0.6, 0.6, 0.8, 0.9};       
-       scenes["s10/renders/r1/color_bar_position"].set(colorbar_position,4);       
+       setSliceAnnotations(scenes["s10/renders/r1"], colorbar_position, sol);       
        
        scenes["s10/renders/r1/image_width"]  = sol.config.image_width1;
        scenes["s10/renders/r1/image_height"] = sol.config.image_height1;       
@@ -429,12 +477,12 @@ void parIO::defineActions_insitu(glsol &sol) {
        slice_params3["normal/x"] = sol.config.pMarker_slice2_norm_x;
        slice_params3["normal/y"] = sol.config.pMarker_slice2_norm_y;
        slice_params3["normal/z"] = sol.config.pMarker_slice2_norm_z;
+       addMarkerZeroSplit(pipelines2, "pl10");
 
        scenes["s11/plots/p1/type"] = "pseudocolor";
        scenes["s11/plots/p1/pipeline"] = "pl10";
        scenes["s11/plots/p1/field"] = "phaseMarker";
        //scenes["s11/plots/p1/color_table/name"] = "Jet";
-       scenes["s11/plots/p1/color_table/annotation"] = "false"; 
        scenes["s11/plots/p1/color_table/discrete"] = "true";
        scenes["s11/plots/p1/min_value"] = 1.0f;
        scenes["s11/plots/p1/max_value"] = 9.0f; 
@@ -442,8 +490,9 @@ void parIO::defineActions_insitu(glsol &sol) {
        conduit::Node control_points;
        colorControlPointsGenerator(control_points);       
        scenes["s11/plots/p1/color_table/control_points"] = control_points;       
+       addMarkerZeroPlot(scenes["s11/plots/p2"], "pl10");
        //double colorbar_position[4] = {-0.6, 0.6, 0.8, 0.9};       
-       scenes["s11/renders/r1/color_bar_position"].set(colorbar_position,4);       
+       setSliceAnnotations(scenes["s11/renders/r1"], colorbar_position, sol);       
        
        scenes["s11/renders/r1/image_width"]  = sol.config.image_width2;
        scenes["s11/renders/r1/image_height"] = sol.config.image_height2;       
@@ -578,6 +627,86 @@ void parIO::defineActions_insitu(glsol &sol) {
       }
 
       } // compute phaseMarker block
+
+    /* >>>>>>>>>>>>>> pipleline D_B slice <<<<<<<<<<<<< */
+    // One exaslice pipeline; one scene per colour table in DB_color_tables,
+    // all with the same fixed range so the colour maps can be compared.
+    // Images: insitu/DB-slice/DB-slice_<table>_t-<cycle>.png
+    if ((sol.config.pario_compute_DB == 1) && (sol.config.do_DB_slice == 1))
+      {
+       pipelines2["plDB/f1/type"] = "exaslice";
+       conduit::Node &slice_params = pipelines2["plDB/f1/params"];
+       slice_params["point/x"] = sol.config.DB_slice_point_x;
+       slice_params["point/y"] = sol.config.DB_slice_point_y;
+       slice_params["point/z"] = sol.config.DB_slice_point_z;
+       slice_params["normal/x"] = sol.config.DB_slice_norm_x;
+       slice_params["normal/y"] = sol.config.DB_slice_norm_y;
+       slice_params["normal/z"] = sol.config.DB_slice_norm_z;
+       // Split the slice at masked sites (D_B = DB_MASKED < 0).
+       // plDB: cells whose vertices are all valid (select cells with any
+       //       masked vertex, then invert), so nothing interpolates to DB_MASKED.
+       // plDBmask: the complement, drawn in the flat colour DB_mask_rgb.
+       pipelines2["plDB/f2/type"] = "threshold";
+       pipelines2["plDB/f2/params/field"] = "DB";
+       pipelines2["plDB/f2/params/min_value"] = -1.0e30;
+       pipelines2["plDB/f2/params/max_value"] = -0.5;
+       pipelines2["plDB/f2/params/invert"] = "true";
+
+       pipelines2["plDBmask/f1"] = pipelines2["plDB/f1"];
+       pipelines2["plDBmask/f2/type"] = "threshold";
+       pipelines2["plDBmask/f2/params/field"] = "DB";
+       pipelines2["plDBmask/f2/params/min_value"] = -1.0e30;
+       pipelines2["plDBmask/f2/params/max_value"] = -0.5;
+
+       // one-colour table: the same RGB at both ends
+       static double mask_r[2], mask_g[2], mask_b[2];
+       static double mask_a[2] = {1.0, 1.0}, mask_pos[2] = {0.0, 1.0};
+       for (int j = 0; j < 2; j++)
+	 {
+	  mask_r[j] = sol.config.DB_mask_rgb[0];
+	  mask_g[j] = sol.config.DB_mask_rgb[1];
+	  mask_b[j] = sol.config.DB_mask_rgb[2];
+	 }
+
+       for (size_t i = 0; i < sol.config.DB_color_tables.size(); i++)
+	 {
+	  const std::string &table = sol.config.DB_color_tables[i];
+	  // file-name-safe version of the table name
+	  std::string tag;
+	  for (const char c : table) tag += std::isalnum(static_cast<unsigned char>(c)) ? c : '_';
+
+	  const std::string s = "sDB" + std::to_string(i);
+	  scenes2[s + "/plots/p1/type"] = "pseudocolor";
+	  scenes2[s + "/plots/p1/pipeline"] = "plDB";
+	  scenes2[s + "/plots/p1/field"] = "DB";
+	  scenes2[s + "/plots/p1/color_table/name"] = table;
+	  scenes2[s + "/plots/p1/min_value"] = sol.config.DB_range_min;
+	  scenes2[s + "/plots/p1/max_value"] = sol.config.DB_range_max;
+
+	  scenes2[s + "/plots/p2/type"] = "pseudocolor";
+	  scenes2[s + "/plots/p2/pipeline"] = "plDBmask";
+	  scenes2[s + "/plots/p2/field"] = "DB";
+	  scenes2[s + "/plots/p2/min_value"] = -2.0;   // avoid a zero-width range
+	  scenes2[s + "/plots/p2/max_value"] = 0.0;
+	  conduit::Node &ct = scenes2[s + "/plots/p2/color_table"];
+	  ct["control_points/r"].set_external(mask_r, 2);
+	  ct["control_points/g"].set_external(mask_g, 2);
+	  ct["control_points/b"].set_external(mask_b, 2);
+	  ct["control_points/a"].set_external(mask_a, 2);
+	  ct["control_points/position"].set_external(mask_pos, 2);
+	  ct["annotation"] = "false";   // colour bar for D_B only
+
+	  setSliceAnnotations(scenes2[s + "/renders/r1"], colorbar_position, sol);
+	  scenes2[s + "/renders/r1/image_width"]  = sol.config.image_width1;
+	  scenes2[s + "/renders/r1/image_height"] = sol.config.image_height1;
+	  scenes2[s + "/renders/r1/bg_color"].set_float64_ptr(bg_colvec, 3);
+	  scenes2[s + "/renders/r1/fg_color"].set_float64_ptr(fg_colvec, 3);
+	  scenes2[s + "/renders/r1/image_prefix"] = "insitu/DB-slice/DB-slice_" + tag + "_t-%09d";
+	  scenes2[s + "/renders/r1/camera/azimuth"] = sol.config.camera1_azi;
+	  scenes2[s + "/renders/r1/camera/elevation"] = sol.config.camera1_ele;
+	  scenes2[s + "/renders/r1/camera/zoom"] = sol.config.zoom1;
+	 }
+      } // D_B slice block
     
     /* >>>>>>>>>>>>>> pipleline U(1) 3 \phi slice <<<<<<<<<<<<< */
 
@@ -617,9 +746,11 @@ void parIO::defineActions_insitu(glsol &sol) {
        scenes["s16/plots/p1/color_table/control_points"] = hsv_Cyclic;
        // scenes["s15/plots/p1/color_table/discrete"] = "true";
 
+       setSliceAnnotations(scenes["s16/renders/r1"], colorbar_position, sol);
        scenes["s16/renders/r1/bg_color"].set_float64_ptr(bg_colvec, 3);
        scenes["s16/renders/r1/fg_color"].set_float64_ptr(fg_colvec, 3);    
        scenes["s16/renders/r1/image_prefix"] = "insitu/U1_3phi-Slice/U1_3phi-slice_t-%09d";
+       scenes["s16/renders/r1/camera/zoom"] = sol.config.zoom1;   // same as the other z-normal slices
       }
 
       } // compute U1Phase block
@@ -653,9 +784,11 @@ void parIO::defineActions_insitu(glsol &sol) {
        scenes["s17/plots/p1/max_value"]
 	 = 1.f + sol.config.lVec_SqlTol; 
 
+       setSliceAnnotations(scenes["s17/renders/r1"], colorbar_position, sol);
        scenes["s17/renders/r1/bg_color"].set_float64_ptr(bg_colvec, 3);
        scenes["s17/renders/r1/fg_color"].set_float64_ptr(fg_colvec, 3);    
        scenes["s17/renders/r1/image_prefix"] = "insitu/lVec_norm2-Slice/lVec_norm2-slice_t-%09d";
+       scenes["s17/renders/r1/camera/zoom"] = sol.config.zoom1;   // same as the other z-normal slices
       }
 
       } // compute lVector block

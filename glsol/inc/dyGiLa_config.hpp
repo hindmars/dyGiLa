@@ -160,6 +160,11 @@ struct dyGiLaConf {
 	           pario_compute_phaseMarker, pario_compute_U1Phase,
 	           pario_compute_lVector, pario_compute_GPhiVector,
 	           pario_compute_massCurr, pario_compute_spinCurr;
+      // D_B = sum_a (R_a - R_a^B)^2, distance from the B phase in quartic invariants
+      unsigned int pario_compute_DB;
+      // The quartic invariants are undefined where A ~ 0. Sites with
+      // sqrt(tr AA^dagger) below this get phaseMarker 0 and D_B = DB_MASKED.
+      real_t invariants_gapA_min;
       unsigned int pario_Temperature_pStream;
 
       real_t U1_3phi_DetA_ZeroTol, lVec_SqlTol;
@@ -206,6 +211,14 @@ struct dyGiLaConf {
   
       unsigned int do_phaseMarker_isosurface;
       std::vector<double> phaseMarker_iso_values_vector;
+
+      // D_B slice: plane, fixed colour range, one rendering per colour table
+      unsigned int do_DB_slice;
+      real_t DB_slice_point_x, DB_slice_point_y, DB_slice_point_z,
+	     DB_slice_norm_x, DB_slice_norm_y, DB_slice_norm_z;
+      real_t DB_range_min, DB_range_max;
+      std::vector<std::string> DB_color_tables;
+      double DB_mask_rgb[3];   // flat colour of masked (small-gap) sites
 
       unsigned int remove_screen_annotations;
       unsigned int do_phaseMarker_fieldclip,

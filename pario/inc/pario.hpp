@@ -60,6 +60,7 @@ private:
   void describeMesh_gapA_FEDensity(glsol &);
   void describeMesh_Temperature();
   void describeMesh_phaseMarker(glsol &);
+  void describeMesh_DB(glsol &);
   void describeMesh_U13phi();
   void describeMesh_lVecSq();  
   void describeMesh_lVec();
@@ -122,6 +123,7 @@ private:
   std::vector<real_t> feDensityContainer;
   std::vector<real_t> Temperature;
   std::vector<real_t> phaseMarker;  
+  std::vector<real_t> DBContainer;
   std::vector<real_t> U1_3phiContainer;
   
   // std::vector<real_t> trA_reContainer, trA_imContainer;

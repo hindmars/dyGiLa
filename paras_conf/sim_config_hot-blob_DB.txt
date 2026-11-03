@@ -1,0 +1,236 @@
+#########################################
+# lattice geometry & time step set
+#########################################
+
+lattice_sizes_array      512, 512, 256 # array of size along x-, y-, z-direction
+dx                       1.0101565109801436 # Lattice spacing
+dtdxRatio                0.2        # ratio between dt and dx
+
+#########################################
+# Sim. time params set
+#########################################
+
+tThermalizationWaiting   10         # initial configuration thermalization time, in unit of tGL
+tauQ1                    100        # 1st uniform Temperature quench in unit of tGL, Temperature counted from Tc to 0
+tauQ2                    100        # 1st uniform Temperature quench in unit of tGL, Temperature counted from Tc to 0
+has1stQStop              yes        # yes means two steps of quenches, no means continuouslu cooling
+TtdQ1st_tQ1Wainting_array 0.84, 0.0 
+use_antiQuench           no         # yes means antiQuench, increasing temperature, no means Quench (decreasing temperature)
+Ttd_Qend                 0.84       # destination (reduced) temperature T_td_Qend = T_Qend/Tc
+
+tStart                   0.0        # starting time
+tEnd                     3125.0000000000005 # end time 610, 1010
+tdis                     3125.0000000000005 # end of damping
+
+TDependnetgamma          yes        # switch for T-dependent gamma (damping coefficient), no or yes
+shiftTDependent_gamma_td no         
+#gamma_td_BaseLine  0.02               # shifting extreme small damping rate of T-dep gamma
+
+gamma1                   0.6825, 0.0 # complex value of damping coeff gamma i.e., gamma = re +I im
+gamma2                   0.6825, 0.0 # complex value of damping coeff gamma i.e., gamma = re +I im
+gammaoffc                10000000   # 150 * steps(1000) = 150000 dt = 15000 tGL, 1779.71, 10000000 will kill gamma change practically
+extinguish_off_t_count   1000       # time expanding of estinguishing gamma2 applying, T-dependent gamma is recovered after this time, (in unit of tGL)
+
+#########################################
+# ini. Configuration, T, p H-field set
+#########################################
+
+#=====>>> T-field set <<<=====#
+initialCondition         hotblob    # type of initial condition: gaussrand, kgaussrand, normal_phase_1(2,complex), Bphase, Aphase_(partial1, full), hotblob
+#case1_params_array 1.0, 1.0                    #k-space gaussian random initial conf; initial modulus IniMod = array[0], initial correlation length Inilc = array[1]
+
+sigma                    0.03       # variance sigma for hila::gaussrand(), e.g., 0.15, 0.02
+seed                     4510       # Random seed, e.g., 1001
+
+initialConditionT        hotblob    # type of Temperature field profile, options are constant, sine, hotblob
+#IniT                2.71821825        # initial value of T-field in mK of constant iniT, starting Temp of Homog-quench, could larger than Tc
+#IniT_ampT_array                      # initial params of T-field of sine iniT; IniT = array[0], ampT = array[1]
+HotBlob_params_array     2.1141405025081803, 0.68, 473.54204577191695 # initial params of T-field hotblob; Ttdb1 = array[0], Ttdb0 = array[1], t1 = array[2]; Tx = T1 - T0, prefactor of blob conf, T1 = Ttdb1 * Tcp, Ttdb0 * Tcp
+Blob_Tc_cutoff           no         # cutoff blob profile at Tc frontier
+use_CustomerDctxi        yes        # no or yes, yes allow custom Dctxi in GL unit
+Dctxi                    14.16      # Dctxi in GL unit
+
+#========>>> p set <<<========#
+initialConditionp        constant   # type of pressure field, options are constant
+Inip                     5.5        # initial value of pressure field
+
+#=====>>> H-field set <<<=====#
+withHfield               yes        # yes means H-field non-zero
+initialConditionH        constant   # type of pressure field, options are constant
+InitH                    0.0, 0.0, 30.0 # H-field vector components hx,hy,hz
+
+#########################################
+# fstreaming control params set
+#########################################
+
+tStats                   0.01       # Starting time for the output_file, usually less 10 tGL
+nOutputs                 62         # Number of outputs for the output_file, 2400, 1200, 600, 300, 28, 500, 1500(dt = 2tGL)
+PSSRatio                 2          # pStream Squezing ratio, minimal value is 1, has to be unsigned int
+output_file              stats/measure-stream.csv # Path for output_file
+pVcounter_file           stats/phaseVolume-stream.csv # Path for pVcounter_file
+
+xmf2_Amatrix_fname       hdf5rAmatrix.xmf2 # hdf5 files reader for ParaView
+xmf2_pMarker_fname       hdf5rpMarker.xmf2 # hdf5 files reader for ParaView
+xmf2_massCurrent_fname   hdf5rmassC.xmf2 # hdf5 files reader for ParaView
+xmf2_spinCurrent_fname   hdf5rspinC.xmf2 # hdf5 files reader for ParaView
+
+#########################################
+# Boud. Cond. treatment params set
+#########################################
+
+BCs1                     AdGRz      # boundaryConditions BCs1
+BCs2                     AdGRz      # boundaryConditions BCs2
+#BoundaryPhaseWindingNO  5               #phase winding number on x-y boundary
+BCchangec                1          # change boundaryConditions to BCs2 at BCchangec * steps, 32, 20
+use_AdGRz_surfaces       yes        # switch for using AdGR BC at z-normal surfaces
+bt_AdGR                  0.01       # AdGR extrapolation length; 1000000 make specular boundary
+
+#########################################
+# Sim. Control params set
+#########################################
+
+evolveT                  yes        # switch for turing on/off Temperature field evolve
+#Tevolvetype           homogeneousQuench   # ways for updating T-field, options are "heat","wave","homogeneousQuench"
+
+useTbath                 yes        # options are no, yes
+Tbath_start              0.0        # starting time of turning on Langevin term for next(), this only works for bon-blob quench
+
+ptol                     0.083      # tolrance of phaseMarker; 0.083; 0.05
+
+useGaussianLP_filter     yes        
+numIterGLPfilter         0          
+GLPfc2                   0.1111111111 # 1/9 or 1/7
+
+
+#########################################
+# Para. IO & Insitu params set
+#########################################
+
+pario_compute_gapA       yes        
+pario_compute_feDensity  no         
+pario_Temperature_pStream no        
+pario_compute_phaseMarker yes       
+pario_compute_DB         yes        # D_B = sum_a (R_a - R_a^B)^2, distance from B phase
+invariants_gapA_min      0.2        # gap below this: phaseMarker 0 (normal, drawn grey), D_B masked; 0 = old behaviour
+pario_compute_U1Phase    yes        
+pario_compute_lVector    yes        
+pario_compute_GPhiVector no         
+pario_compute_spinCurr   no         
+
+U1_3phi_DetA_ZeroTol     0.03       # detA zero tol, 0.05, 0.03 is OK, 0.01 a little weak, 1e-3 is too small, 0.5 is a little overkill
+lVec_SqlTol              0.2        
+
+hdf5_A_matrix_output     no         
+hdf5_AMatrix_exaslice_output no     
+hdf5_mass_current_output no         
+hdf5_spin_current_output no         
+hdf5_spinCurr_exaslice_output no    
+hdf5_pMarker_output      no         
+hdf5_lVector_output      no         
+hdf5_GradPhiVector_output no        
+hdf5_GradPhiVector_exaslice_output no 
+hdf5_GradPhiVector_clip_output no   
+hdf5_GradPhiVector_boxclip_output no 
+#hdf5_cheerypick       no
+#hdf5_cheerypick_array      1000, 2800, 5200, 9600, 15000, 19800
+#hdf5Ststart           50                   #1747.72
+#hdf5Stend             150                   #1807.71
+
+do_gapA_clip             no         
+#gapAClip_params_array   64, 64, 64, 0, 0, 1 #gapA clip para; point x,y,z~array[0-2]; norm x,y,z~array[3-5]
+
+do_gapA_slice            yes        
+gapASlice_params_array   258.60006681091676, 258.60006681091676, 129.30003340545838, 0, 0, 1 # gapA slice para; point x,y,z~array[0-2]; norm x,y,z~array[3-5]
+
+do_fed_clip              no         
+#fedClip_params_array   102.4, 102.4, 102.4, 0, 0, 1 #gapA slice para; point x,y,z~array[0-2]; norm x,y,z~array[3-5]
+
+do_gapA_isosurface       no         
+#gapAIsoValues_array    0.9, 1.05 # Only TWO values allowed; gapA iso surface values list
+
+do_Temperature_clip      no         
+#TempClip_params_array   102.4, 102.4, 102.4, 0, 0, 1 #gapA slice para; point x,y,z~array[0-2]; norm x,y,z~array[3-5]
+
+do_Temperature_slice     no         
+#TempSlice_params_array   102.4, 102.4, 102.4, 0, 0, 1 #Temperature slice para; point x,y,z~array[0-2]; norm x,y,z~array[3-5]
+
+do_Temperature_isosurface no        
+#TempIsoValues_params_array    1.0, 0.75 #Only TWO values allowed; in unit of Tc
+
+do_phaseMarker_slice1    yes        
+pMarkerSlice1_params_array 258.60006681091676, 258.60006681091676, 129.30003340545838, 0, 0, 1 # pMarker slice1 para; point x,y,z~array[0-2]; norm x,y,z~array[3-5]
+
+do_phaseMarker_slice2    yes        
+pMarkerSlice2_params_array 258.60006681091676, 258.60006681091676, 129.30003340545838, 0, 1, 0 # pMarker slice2 para; point x,y,z~array[0-2]; norm x,y,z~array[3-5]
+
+do_phaseMarker_isosurface no        
+#pMarkerIsoValues_params_array  0.0, 1.0 # Only TWO values allowed;
+
+do_DB_slice              yes        # D_B = sum_a (R_a - R_a^B)^2; needs pario_compute_DB yes
+DBSlice_params_array     258.60006681091676, 258.60006681091676, 129.30003340545838, 0, 0, 1 # same plane as pMarker slice1; point x,y,z~array[0-2]; norm x,y,z~array[3-5]
+DB_range_array           0.0, 2.34  # colour range; 0 = B, 1 = alpha, 1.33 = polar, 2 = A, 2.33 = R all zero
+# One image set per listed table; names must be quoted. Other options: "Inferno", "Plasma", "Viridis", "Cool to Warm"
+DB_color_tables          "Jet"
+DB_mask_rgb              0.5, 0.5, 0.5 # colour of sites below invariants_gapA_min
+
+remove_screen_annotations no        # colour bars on all slice images
+do_phaseMarker_fieldclip no         
+do_phaseMarker_fieldclip_Bphase no  
+do_phaseMarker_fieldclip_Aphase no  
+
+do_U13phi_slice          yes        # 3*U(1) phase from det(A)
+U13phiSlice_params_array 258.60006681091676, 258.60006681091676, 129.30003340545838, 0, 0, 1 # pMarker slice2 para; point x,y,z~array[0-2]; norm x,y,z~array[3-5]
+
+do_l_sq_slice            yes        # l-vec norm^2
+lsqSlice_params_array    258.60006681091676, 258.60006681091676, 129.30003340545838, 0, 0, 1 # pMarker slice2 para; point x,y,z~array[0-2]; norm x,y,z~array[3-5]
+
+do_GPhi_slice_extract    no         
+# GPhi_slice_params 128, 128, 128, 0, 0, 1 # exaslice params array
+
+do_GPhi_clip_extract     no         
+# GPhi_clip_params 128., 128., 128., 0., 0., 1. # exaslice params array
+
+do_GPhi_boxclip_extract  no         
+#GPhiBoxClip_params_array 32., 64., 32., 96., 96., 96. # exaslice params array
+
+do_AMatrix_slice_extract no         
+#AMSlice_params_array 64., 64., 64., 0., 0., 1.
+
+do_spinCurr_slice_extract no        
+#spinCurrSlice_params_array 64., 64., 64., 0., 0., 1.
+
+
+#do_gapA_3slice       no
+#do_fe_slice          no
+#do_gapA_slice        yes
+
+#########################################
+# Para. IO Visal control  params set
+#########################################
+
+#gapAClampBias_params_array   -0.05, 0.06 #gapA color bar min & max expasion; arr[0]<=0, arr[1]>=1
+clamp_bias_gapMin        -0.05      # bias ratio of gapMin in color map clam; should be nagtivep
+clamp_bias_gapMax        0.06       # bias ratio of gapMax in color map clamp
+
+#fedClampBias_params_array   0.1, 0.1 #free enegy color bar min & max expasion; arr[0]<=0, arr[1]>=1
+clamp_bias_fed_Min       0.1        # bias ratio of feDneisty min in color map clamp, should be positive because fed < 0
+clamp_bias_fed_Max       0.1        # bias ratio of feDneisty max in color map clamp
+
+#ColorBarPosition_params_array   -0.7, 0.7. 0.88, 0.93 #insitu color bar position in normalised coords; xMin=arr[0], xMax=arr[1], yMin=arr[2], yMax=arr[3]
+CBxMin                   -0.7       
+CBxMax                   0.7        
+CByMin                   0.88       
+CByMax                   0.93       
+
+image_width1             1024       
+image_height1            1024       
+image_width2             1024       
+image_height2            512        
+
+camera1_azi              0.0        # camera azi of conduit scene
+camera1_ele              0.0        # camera ele of conduit scene
+camera2_azi              0.0        # camera azi of conduit scene
+camera2_ele              90.0       # camera ele of conduit scene
+
+zoom1                    1.13       
+zoom2                    2.0        # was 3.35; leaves room for the colour bar

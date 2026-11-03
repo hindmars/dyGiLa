@@ -60,6 +60,7 @@ void parIO::init(glsol &sol) {
     describeMesh_gapA_FEDensity(sol);
     if (sol.config.pario_Temperature_pStream == 1) { describeMesh_Temperature(); }
     describeMesh_phaseMarker(sol);
+    describeMesh_DB(sol);
     if (sol.config.pario_compute_U1Phase == 1) { describeMesh_U13phi(); }
     if (sol.config.pario_compute_lVector == 1) { describeMesh_lVecSq(); }
 

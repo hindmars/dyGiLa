@@ -46,6 +46,7 @@ PARIO_OBJECTS = $(PARIO_PATH)/xdmf.o     \
                 $(PARIO_PATH)/mesh_gapA_FEDensity.o   \
                 $(PARIO_PATH)/mesh_insitu_Temperature.o \
                 $(PARIO_PATH)/mesh_phaseMarker.o \
+                $(PARIO_PATH)/mesh_DB.o \
                 $(PARIO_PATH)/mesh_U1_3phi.o \
                 $(PARIO_PATH)/mesh_lVec.o \
                 $(PARIO_PATH)/mesh_GradientPhiVec.o \

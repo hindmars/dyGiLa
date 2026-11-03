@@ -104,6 +104,7 @@ void pStreaming(glsol &gl, parIO &paraio, unsigned int &stat_counter, const unsi
 	       || (gl.config.do_gapA_isosurface == 1)
 	       || (gl.config.do_phaseMarker_slice1 == 1)
 	       || (gl.config.do_phaseMarker_slice2 == 1)	       
+	       || (gl.config.do_DB_slice == 1)
 	       || (gl.config.do_phaseMarker_isosurface == 1)
 	       || (gl.config.do_phaseMarker_fieldclip == 1)
 	       || (gl.config.do_phaseMarker_fieldclip_Bphase == 1)
