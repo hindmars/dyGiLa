@@ -79,8 +79,10 @@ to leave room for it.
 
 ### Raw HILA slices of the order parameter A
 
-dyGiLa can write slices of A as raw binary with HILA's `Field::write_slice_binary`
+dyGiLa can write slices of A as raw binary, gathered with HILA's `Field::get_slice`
 (the `hila` in the names distinguishes this from Ascent's slice extracts), at the same outputs as the in-situ images.
+Each slice is gathered whole on rank 0 before writing, so keep to planes or lines:
+the whole 512×512×256 lattice would need 4.8 GB there.
 The key `write_hila_A_slice` is required (set it to `no` to turn this off), directly after `do_spinCurr_slice_extract` (and `spinCurrSlice_params_array`, if read):
 
 ```

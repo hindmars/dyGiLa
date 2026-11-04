@@ -33,7 +33,7 @@ void writeHilaASlices(glsol &gl, const unsigned int stat_counter)
     {
       mkdir("hila-A-slice", 0755);   // fails harmlessly if it exists
       std::ofstream info("hila-A-slice/hila-A-slice-info.txt");
-      info << "# Raw binary slices of the order parameter A, written by Field::write_slice_binary.\n"
+      info << "# Raw binary slices of the order parameter A, gathered with Field::get_slice.\n"
 	   << "# Each site is a 3x3 complex matrix of " << sizeof(real_t) << "-byte floats:\n"
 	   << "# A[0][0].re, A[0][0].im, A[0][1].re, ..., A[2][2].im (row-major, 18 numbers).\n"
 	   << "# Sites are in lattice order with x fastest, then y, then z.\n"
@@ -47,11 +47,27 @@ void writeHilaASlices(glsol &gl, const unsigned int stat_counter)
 
   for (size_t k = 0; k < c.size() / 3; k++)
     {
+      // get_slice() (in HILA since 2022) gathers the whole slice to rank 0 in
+      // lattice order, x fastest, so rank 0 needs memory for all of it.
+      //
+      // TODO: once the insHILA used on LUMI includes HILA commit d5a0bc90
+      // (June 2026, Field::write_slice_binary), the get_slice() call and the
+      // rank-0 block below can be replaced by
+      //     gl.A.write_slice_binary(fname.str(), slice);
+      // called on every rank (it is collective), with fname built on every
+      // rank. It writes the same bytes, gathering in chunks, so the file
+      // format and readers stay the same. get_slice() keeps working, so this
+      // is only needed for slices too big for rank 0's memory.
       const CoordinateVector slice = {c[3*k], c[3*k+1], c[3*k+2]};
-      std::ostringstream fname;
-      fname << "hila-A-slice/hila-A-slice" << k << "_t-"
-	    << std::setfill('0') << std::setw(9) << stat_counter << ".bin";
-      gl.A.write_slice_binary(fname.str(), slice);
+      const std::vector<phi_t> data = gl.A.get_slice(slice);
+      if (hila::myrank() == 0)
+	{
+	  std::ostringstream fname;
+	  fname << "hila-A-slice/hila-A-slice" << k << "_t-"
+		<< std::setfill('0') << std::setw(9) << stat_counter << ".bin";
+	  std::ofstream out(fname.str(), std::ios::binary);
+	  out.write(reinterpret_cast<const char *>(data.data()), data.size() * sizeof(phi_t));
+	}
     }
 
   if (hila::myrank() == 0)

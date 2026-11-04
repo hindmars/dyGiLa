@@ -249,7 +249,8 @@ struct dyGiLaConf {
       real_t spinCurr_slice1_point_x, spinCurr_slice1_point_y, spinCurr_slice1_point_z,
 	     spinCurr_slice1_norm_x, spinCurr_slice1_norm_y, spinCurr_slice1_norm_z;
   
-      // raw binary slices of A, written with Field::write_slice_binary
+      // raw binary slices of A, gathered with Field::get_slice (see the TODO in
+      // dyGiLa/src/pstreaming.cpp about switching to Field::write_slice_binary)
       unsigned int write_hila_A_slice;
       std::vector<int> hila_A_slice_coords;   // flat (x, y, z) triples; -1 = whole range
 
