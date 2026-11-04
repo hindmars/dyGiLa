@@ -199,6 +199,11 @@ do_AMatrix_slice_extract no
 do_spinCurr_slice_extract no        
 #spinCurrSlice_params_array 64., 64., 64., 0., 0., 1.
 
+# raw binary slices of A (Field::write_slice_binary) at each image output;
+# (x, y, z) lattice indices per slice, -1 = whole range; files in hila-A-slice/
+write_hila_A_slice            no
+#hila_ASlice_coord_array      -1, -1, 128
+
 
 #do_gapA_3slice       no
 #do_fe_slice          no

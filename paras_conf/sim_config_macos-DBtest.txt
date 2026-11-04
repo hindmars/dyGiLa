@@ -99,6 +99,8 @@ do_GPhi_clip_extract no
 do_GPhi_boxclip_extract no
 do_AMatrix_slice_extract no
 do_spinCurr_slice_extract no
+write_hila_A_slice       yes
+hila_ASlice_coord_array  -1, -1, 16, -1, 16, -1
 clamp_bias_gapMin   0.0
 clamp_bias_gapMax   3.0
 clamp_bias_fed_Min  -1.0

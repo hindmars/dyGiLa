@@ -77,6 +77,32 @@ including phase-marker slice 2. The bar sits across the top, at
 `CBxMin`…`CBxMax`, `CByMin`…`CByMax`, so the slice may need a smaller `zoom1`/`zoom2`
 to leave room for it.
 
+### Raw HILA slices of the order parameter A
+
+dyGiLa can write slices of A as raw binary with HILA's `Field::write_slice_binary`
+(the `hila` in the names distinguishes this from Ascent's slice extracts), at the same outputs as the in-situ images.
+The key `write_hila_A_slice` is required (set it to `no` to turn this off), directly after `do_spinCurr_slice_extract` (and `spinCurrSlice_params_array`, if read):
+
+```
+write_hila_A_slice            yes
+hila_ASlice_coord_array       -1, -1, 128, -1, 256, -1   # (x, y, z) per slice; here the z = 128 and y = 256 planes
+```
+
+- `hila_ASlice_coord_array` is read only if `write_hila_A_slice` is `yes`. Each slice is an (x, y, z)
+  triple of **lattice indices** (not physical coordinates); -1 means the whole range in that
+  direction. So `-1, -1, 128` is the plane z = 128, `-1, 10, 20` a line along x, and
+  `-1, -1, -1` the whole lattice.
+- Files go to `hila-A-slice/hila-A-slice<k>_t-<cycle>.bin` (k = slice number, cycle as in the image
+  names); the directory is created if needed. Each site is a 3×3 complex matrix of 4-byte
+  floats, row-major with real and imaginary parts interleaved (18 floats, 72 bytes), and sites
+  are in lattice order with x fastest. A z-plane of a 512×512×256 lattice is 18.9 MB per output.
+- `hila-A-slice/hila-A-slice-info.txt` records the lattice size, `dx` and the slices;
+  `hila-A-slice/hila-A-slice-times.txt` has one line `cycle t` per output (appended, so clear it before
+  rerunning in the same directory).
+
+In Python, a z-slice reads as
+`np.fromfile(f, np.float32).view(np.complex64).reshape(ny, nx, 3, 3)`.
+
 ### License
 
 dyGiLa is licensed on under GPL-v2 license. 

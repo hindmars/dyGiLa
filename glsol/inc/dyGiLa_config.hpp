@@ -249,7 +249,11 @@ struct dyGiLaConf {
       real_t spinCurr_slice1_point_x, spinCurr_slice1_point_y, spinCurr_slice1_point_z,
 	     spinCurr_slice1_norm_x, spinCurr_slice1_norm_y, spinCurr_slice1_norm_z;
   
-      unsigned int do_massCurr_slice_extract;  
+      // raw binary slices of A, written with Field::write_slice_binary
+      unsigned int write_hila_A_slice;
+      std::vector<int> hila_A_slice_coords;   // flat (x, y, z) triples; -1 = whole range
+
+      unsigned int do_massCurr_slice_extract;
       real_t massCurr_slice1_point_x, massCurr_slice1_point_y, massCurr_slice1_point_z,
 	     massCurr_slice1_norm_x, massCurr_slice1_norm_y, massCurr_slice1_norm_z;
   

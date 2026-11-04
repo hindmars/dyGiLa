@@ -572,6 +572,25 @@ const std::vector<std::string> glsol::configure(const std::string &fname, int ar
 	config.spinCurr_slice1_norm_z = exaslice_params[5];
       }
 
+    // raw binary slices of A: one (x, y, z) lattice-index triple per slice,
+    // -1 meaning the whole range in that direction
+    config.write_hila_A_slice = parameters.get_item("write_hila_A_slice",{"no","yes"});
+    if (config.write_hila_A_slice == 1)
+      {
+	const std::vector<int> coords = parameters.get("hila_ASlice_coord_array");
+	const int size[3] = {config.lx, config.ly, config.lz};
+	bool ok = !coords.empty() && coords.size() % 3 == 0;
+	for (size_t i = 0; ok && i < coords.size(); i++)
+	  ok = coords[i] >= -1 && coords[i] < size[i % 3];
+	if (!ok)
+	  {
+	    hila::out0 << "hila_ASlice_coord_array needs (x, y, z) triples of lattice indices,"
+		       << " each -1 or 0 ... size-1" << std::endl;
+	    hila::error("\n");
+	  }
+	config.hila_A_slice_coords = coords;
+      }
+
     
     
     // config.do_gapA_3slice       = parameters.get_item("do_gapA_3slice",{"no","yes"});
